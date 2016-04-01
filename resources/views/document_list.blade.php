@@ -3,28 +3,44 @@
 @section("toolbar")
 <form action="{{ action('DocumentController@index') }}" method="get" class="form-inline" style="display:inline">
 	
-	<input type="text" placeholder="Suche" name="q" value="{{ Input::get("q") }}" class="form-control">
+	<input type="text" placeholder="Suche" name="q" value="{{ Input::get("q") }}" class="form-control" size=60>
+	<a href="{{action('DocumentController@importEditor')}}" class="pull-right btn btn-default">Import</a>
 </form>
 @endsection
 
 
 @section("main")
+<div class="row">
+	<div class="col-md-3">
 <h2>Neu</h2>
-<form action="{{ action('DocumentController@store') }}" method="post" enctype="multipart/form-data" class="form-inline">
+<form action="{{ action('DocumentController@store') }}" method="post" enctype="multipart/form-data">
 	{{ csrf_field() }}
-	<input type="date" name="doc_date" value="{{ date("Y-m-d") }}" class="form-control">
-	<input type="text" name="title" placeholder="Dokument-Titel" class="form-control">
-	<input type="file" name="document" style="display:inline">
-	<input type="submit" value="OK" class="btn btn-primary">
+	<div class=form-group>
+		<input type="date" name="doc_date" value="{{ date("Y-m-d") }}" class="form-control">
+	</div>
+	<div class=form-group>
+		<input type="text" name="title" placeholder="Dokument-Titel" class="form-control">
+	</div>
+	<div class=form-group>
+		<input type="file" name="document">
+	</div>
+	
+		<input type="submit" value="OK" class="btn btn-primary">
 </form>
-
+	
+	<h2>Tags</h2>
+		<div id="taglist" class=list-group></div>
+</div>
+<div class="col-md-9">
 <h2>Dokumente</h2>
 
 @foreach($docs as $doc)
+<div class="document">
 <a href="{{ action('DocumentController@show', [$doc->id]) }}">
-	<img src="{{ action('DocumentController@thumbnail', [$doc->id]) }}" width=150 height=150 style=" float: left;">
+	<img src="{{ action('DocumentController@thumbnail', [$doc->id, 1]) }}" width=150 height=150>
 </a>
-<small>{{ $doc->doc_date }} </small>	<br>
+	<a href="javascript:" class="pull-right btn btn-xs btn-default">{{$doc->doc_mandant}}</a>
+<small>{{ $doc->displayDate() }} </small>	<br>
 <a href="{{ action('DocumentController@show', [$doc->id]) }}">
 
 	{{ $doc->title }}</a>
@@ -39,8 +55,30 @@
 @endforeach
 @endif
 </small>
-
 <br style="clear:left">
+</div>
 @endforeach
-
+</div>
+</div>
+<style>
+	.document {padding: 6px;background: #e2f5f4; margin: 4px 0;}
+	.document img { float: left; margin-right: 10px; }
+</style>
+<script>
+var $list = $("#taglist");
+if (window.innerWidth > 800) {
+  loadtags();
+} else {
+  $list.append("<a href='#' class=list-group-item>Laden</a>");
+  $list.find("a").click(loadtags);
+}
+function loadtags(){
+  $list.html("");
+  $.get("/tags", function(r) {
+    r.tags.forEach(function(d) {
+      $list.append("<a href='?q=tag:"+d.tag+"' class=list-group-item><span class='badge'>"+d.cc+"</span> " + d.tag + "</a></li>");
+    });
+  });
+}
+</script>
 @endsection

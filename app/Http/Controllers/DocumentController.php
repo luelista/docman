@@ -18,38 +18,37 @@ class DocumentController extends Controller
      */
     public function index(Request $request)
     {
-#	    Event::listen('illuminate.query', function($query, $params, $time, $conn) {     dd(array($query, $params, $time, $conn));});
-	    if ($request->has("q")) {
-		    //$docs = Document::whereRaw('MATCH (title,description) AGAINST (? IN NATURAL LANGUAGE MODE)', [$request->input("q")])->get();
-		    $query = explode(" ", $request->input("q"));
-		    $where = ""; $para = array();
-		    foreach($query as $q) {
-			    if (substr($q,0,1)=="!") { $where .= " NOT "; $q=substr($q,1); }
-			    
-			    if (preg_match('/^[0-9]{4}$/', $q)) {
-				    $q = intval($q);
-				    $where .= " year(doc_date) = ? AND "; $para[] = $q;
-			    } elseif (preg_match('/^[0-9]{4}-[0-9]{2}$/', $q)) {
-				    $q = explode("-",$q);
-				    $where .= " year(doc_date) = ? AND  month(doc_date) = ? AND "; $para[] = $q[0];$para[] = $q[1];
-			    } elseif (substr($q,0,4)=="tag:") {
-				    $q = "% ".substr($q,4)." %";
-				    $where .= " tags LIKE ? AND "; $para[] = $q;
-			    } elseif (substr($q,0,6)=="title:") {
-				    $q = "%".substr($q,6)."%";
-				    $where .= " title LIKE ? AND "; $para[] = $q;
-			    } else {
-				    $q = "%$q%";
-				    $where .= " (title LIKE ? OR description LIKE ?) AND "; $para[] = $q;$para[] = $q;
-			    }
-			    
-			    
-		    }
-		    
-		    $docs = Document::whereRaw("$where 1", $para)->get();
-	    } else {
-	        $docs = Document::orderBy('created_at', 'DESC')->get();
-	    }
+      if ($request->has("q")) {
+        $query = explode(" ", $request->input("q"));
+        $where = ""; $para = array();
+        foreach($query as $q) {
+          if (substr($q,0,1)=="!") { $where .= " NOT "; $q=substr($q,1); }
+          
+          if (preg_match('/^(?:m:(.*)|([A-Z]+))$/', $q, $m)) {
+            $where .= " doc_mandant = ? AND "; $para[] = $m[1];
+          } else if (preg_match('/^d:([0-9]){4}$/', $q, $m)) {
+            $q = intval($m[1]);
+            $where .= " year(doc_date) = ? AND "; $para[] = $q;
+          } elseif (preg_match('/^d:([0-9]{4})-([0-9]{2})$/', $q)) {
+            $where .= " year(doc_date) = ? AND  month(doc_date) = ? AND "; $para[] = $m[1];$para[] = $m[2];
+          } elseif (substr($q,0,4)=="tag:") {
+            $q = "% ".substr($q,4)." %";
+            $where .= " tags LIKE ? AND "; $para[] = $q;
+          } elseif (substr($q,0,6)=="title:") {
+            $q = "%".substr($q,6)."%";
+            $where .= " title LIKE ? AND "; $para[] = $q;
+          } else {
+            $q = "%$q%";
+            $where .= " (title LIKE ? OR description LIKE ? OR tags LIKE ?) AND "; $para[] = $q;$para[] = $q;$para[] = $q;
+          }
+          
+          
+        }
+        
+        $docs = Document::whereRaw("$where 1", $para)->orderBy('created_at', 'DESC')->get();
+      } else {
+        $docs = Document::orderBy('created_at', 'DESC')->get();
+      }
 
 
         return view('document_list', ['docs' => $docs]);
@@ -60,9 +59,10 @@ class DocumentController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function importEditor()
     {
-        //
+        $docs = Document::where(['doc_date' => null])->get();
+        return view('document_import', ['docs' => $docs]);
     }
 
     /**
@@ -74,12 +74,13 @@ class DocumentController extends Controller
     public function store(Request $request)
     {
         $file = $request->file("document");
-		if (!$file) abort(400, "Missing file");
-		if ($file->getClientOriginalExtension() != 'pdf') abort(406, "Invalid file type (only pdf accepted)");
-		
+        if (!$file) abort(400, "Missing file");
+        if ($file->getClientOriginalExtension() != 'pdf') abort(406, "Invalid file type (only pdf accepted)");
+    
         $doc = new Document();
         $doc->doc_date = $request->input("doc_date");
         $doc->import_filename = preg_replace("/[^a-zA-Z0-9._-]+/", "-", $file->getClientOriginalName());
+				$doc->import_source = "web";
         $doc->title = $request->input("title");
         $doc->description = "";
         $doc->save();
@@ -98,7 +99,7 @@ class DocumentController extends Controller
      */
     public function show($id)
     {
-        $doc = Document::find($id);
+        $doc = Document::findOrFail($id);
         return view('document_show', ['doc' => $doc]);
     }
 
@@ -108,10 +109,10 @@ class DocumentController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function preview($id)
+    public function preview($id, $page)
     {
         $doc = Document::find($id);
-        $previewFile = $doc->getPath() . '/_firstpage.jpg';
+        $previewFile = $doc->getPagePreviewFilespec($page);
         return response()->download($previewFile, $doc->import_filename . '.jpg', [], 'inline');
     }
     /**
@@ -120,10 +121,10 @@ class DocumentController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function thumbnail($id)
+    public function thumbnail($id, $page)
     {
         $doc = Document::find($id);
-        $previewFile = $doc->getPath() . '/_thumb.jpg';
+        $previewFile = $doc->getThumbFilespec($page);
         return response()->download($previewFile, $doc->import_filename . '.jpg', [], 'inline');
     }
 
@@ -148,7 +149,32 @@ class DocumentController extends Controller
      */
     public function edit($id)
     {
-        //
+      $doc = Document::find($id);
+      return view('document_editPdf', ['doc' => $doc]);
+    }
+
+
+    public function splitPdf(Request $request, $id) {
+      $doc = Document::findOrFail($id);
+
+      if ($request->input('extractPages')) {
+        $newDocList = $doc->extractPdfPages($request->input('extractPage'), $request->input('removeFromOrig'));
+      } else if ($request->input('burstPdf')) {
+        $newDocList = $doc->burstPdf();
+      } else if ($request->input('mergePdf')) {
+        $mergeDoc = Document::findOrFail(intval($request->input('mergeDocId')));
+        $newDocList = $doc->mergePdf($mergeDoc, $request->input('mergePosition'));
+        if ($request->input('deleteMerged')) $mergeDoc->delete();
+        else array_push($newDocList, $mergeDoc);
+      }
+      $docIdList = array();
+      foreach($newDocList as $d) array_push($docIdList, $d->id);
+      return redirect()->action('DocumentController@listSelected', [ 'docs' => $docIdList ]);
+    }
+
+    public function listSelected(Request $request) {
+      $docs = Document::whereIn('id', $request->input("docs"))->get();
+      return view('document_editPdfOk', ['newDocs' => $docs ]);
     }
 
     /**
@@ -164,6 +190,7 @@ class DocumentController extends Controller
         $doc->title = $request->input('title');
         $doc->description = $request->input('description');
         $doc->doc_date = $request->input('doc_date');
+        $doc->doc_mandant = $request->input('doc_mandant');
         $doc->tags = $request->input('tags');
         
         $doc->save();
@@ -180,6 +207,11 @@ class DocumentController extends Controller
     {
         $doc = Document::find($id);
         $doc->delete();
-        return redirect()->action('DocumentController@index');
+	return response()->json(["success" => true]);
     }
+		
+		public function allTags() {
+			$tags = DB::select("select count(tag) cc,tag from document_tags group by tag order by cc desc");
+			return response()->json(["tags" => $tags]);
+		}
 }

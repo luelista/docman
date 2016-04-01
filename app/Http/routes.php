@@ -14,14 +14,21 @@
 Route::get('/', function () {
     return redirect()->action('DocumentController@index');
 });
-Route::get('/documents/{id}/thumbnail', 'DocumentController@thumbnail');
-Route::get('/documents/{id}/preview', 'DocumentController@preview');
+Route::get('/documents/list_selected', 'DocumentController@listSelected');
+Route::get('/documents/{id}/thumbnail/{page}', 'DocumentController@thumbnail');
+Route::get('/documents/{id}/preview/{page}', 'DocumentController@preview');
 Route::get('/documents/{id}/raw/{filename}', 'DocumentController@viewFile');
 Route::get('/documents/{id}', 'DocumentController@show');
+Route::get('/documents/{id}/edit', 'DocumentController@edit');
+Route::post('/documents/{id}/splitPdf', 'DocumentController@splitPdf');
 Route::delete('/documents/{id}', 'DocumentController@destroy');
 Route::post('/documents/{id}', 'DocumentController@update');
 Route::get('/documents', 'DocumentController@index');
 Route::post('/documents', 'DocumentController@store');
+Route::get('/tags', 'DocumentController@allTags');
+Route::get('/imports', 'DocumentController@importEditor');
+
+Route::post('/imports/update', 'ImportController@massUpdate');
 
 Route::post('/webHooks/handleMail', 'ImportController@handleMail');
 

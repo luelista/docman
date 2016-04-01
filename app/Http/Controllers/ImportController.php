@@ -27,12 +27,13 @@ class ImportController extends Controller
     public function handleMail(Request $request)
     {
         $file = $request->file("attachment-1");
-		if (!$file) abort(400, "Missing file");
-		if ($file->getClientOriginalExtension() != 'pdf') abort(406, "Invalid file type (only pdf accepted)");
-		
+        if (!$file) abort(400, "Missing file");
+        if ($file->getClientOriginalExtension() != 'pdf') abort(406, "Invalid file type (only pdf accepted)");
+        
         $doc = new Document();
-        $doc->doc_date = $request->has("doc_date") ? $request->input("doc_date") : date("Y-m-d");
+        $doc->doc_date = $request->has("doc_date") ? $request->input("doc_date") : null;
         $doc->import_filename = preg_replace("/[^a-zA-Z0-9._-]+/", "-", $file->getClientOriginalName());
+        $doc->import_source = $request->input("from");
         $doc->title = $request->input("subject");
         $doc->description = $request->input("body-plain");
         $doc->save();
@@ -49,53 +50,17 @@ class ImportController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function massUpdate(Request $request)
     {
-        //
+        $post = $request->input("doc");
+        foreach($post as $docid => $content) {
+          $doc = Document::find($docid);
+          if ($content['title']) $doc->title = $content['title'];
+          if ($content['doc_date']) $doc->doc_date = $content['doc_date'];
+          if ($content['tags']) $doc->tags = $content['tags'];
+          $doc->save();
+        }
+        return response()->json(["success"=>"true"]);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
 }
