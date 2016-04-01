@@ -6,8 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class DocumentTag extends Model
 {
-    //
-    public function tags()
+    public $timestamps = false;
+    
+    public function document()
     {
         return $this->belongsTo('App\Document');
     }
