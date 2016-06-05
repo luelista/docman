@@ -20,4 +20,3 @@ AuthName "Geheimer Bereich"
 AuthUserFile /var/www/virtual/mwdoc/.htuser
 Require valid-user
 
-
