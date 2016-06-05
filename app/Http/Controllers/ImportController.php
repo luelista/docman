@@ -45,7 +45,7 @@ class ImportController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Updates properties of multiple documents at once. Used by import editor (/import)
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response

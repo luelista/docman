@@ -54,6 +54,7 @@
 <a href="?q=tag:{{$tag}}" class="btn btn-xs btn-default">{{$tag}}</a>
 @endforeach
 @endif
+<div class='docdesc'>{{ substr($doc->description,0,200)  }}</div>
 </small>
 <br style="clear:left">
 </div>
@@ -62,7 +63,8 @@
 </div>
 <style>
 	.document {padding: 6px;background: #e2f5f4; margin: 4px 0;}
-	.document img { float: left; margin-right: 10px; }
+  .document img { float: left; margin-right: 10px; }
+.docdesc { color: #666; font-style: italic; margin-top: 5px; }
 </style>
 <script>
 var $list = $("#taglist");
