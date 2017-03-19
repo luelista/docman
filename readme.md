@@ -8,7 +8,7 @@ Repository:
 git clone ...
 ```
 
-Database:
+Datenbank:
 
 ```
 CREATE DATABASE docman;
@@ -26,11 +26,14 @@ server {
   include snippets/ssl.conf;
 
   server_name docs.your-server.de;
-  root /path/to/repo/public;
 
+  root /path/to/repo/public;
   index index.php index.html;
+
   location / {
     try_files $uri $uri/ /index.php?$query_string;
+    auth_basic "Dokumente";
+    auth_basic_user_file /path/to/your/.htpasswd;
   }
 
   location ~ \.php$ {
@@ -45,7 +48,7 @@ server {
 }
 ```
 
-Dependencies:
+Abhängigkeiten:
 
 ```
 apt-get install imagemagick pdftk ghostscript php5-mcrypt
@@ -60,20 +63,35 @@ composer dumpautoload -o
 gulp
 ```
 
-Configuration:
+Konfiguration:
 
 ```
 cp .env.example .env
 php artisan config:cache
 php artisan route:cache
 php artisan migrate
+chown -R root:www-data .
+chmod -R g+w storage
+htpasswd -c .htpasswd mustermann
 ```
 
-Testing:
+In der php.ini die Funktionen `exec` und `shell_exec` erlauben.
+
+Tests:
 
 ```
 vendor/bin/phpunit
 ```
+
+
+## Benutzung
+
+Tag-Liste links auf der Startseite füllen / aktualisieren:
+
+```
+php artisan docman:updatetags
+```
+
 
 ## Lizenz
 
