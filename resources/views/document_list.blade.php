@@ -5,6 +5,7 @@
 	
 	<input type="text" placeholder="Suche" name="q" value="{{ Input::get("q") }}" class="form-control" size=60>
 	<a href="{{action('DocumentController@importEditor')}}" class="pull-right btn btn-default">Import</a>
+	<a href="{{action('DocumentController@updateTags')}}" class="pull-right btn btn-default" style="margin-right:.5rem;">Tags aktualisieren</a>
 </form>
 @endsection
 

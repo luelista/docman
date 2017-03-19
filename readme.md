@@ -93,6 +93,8 @@ Tag-Liste links auf der Startseite füllen / aktualisieren:
 php artisan docman:updatetags
 ```
 
+Alternativ oben rechts auf den entsprechenden Button klicken.
+
 
 ## E-Mail-Empfang einrichten
 
