@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <link rel="stylesheet" href="/style/style.css">
     <script>csrf="{{ csrf_token() }}"</script>
-    <script src="http://code.jquery.com/jquery-3.2.0.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.2.0.min.js"></script>
     <script src="/style/helpers.js"></script>
 </head>
   <body>
