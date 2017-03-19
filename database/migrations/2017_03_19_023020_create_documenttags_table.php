@@ -13,7 +13,7 @@ class CreateDocumentTagsTable extends Migration
     public function up()
     {
         Schema::create('document_tags', function (Blueprint $table) {
-            $table->increments('id');
+            $table->integer('id');
             $table->string('tag');
         });
     }
