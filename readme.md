@@ -39,7 +39,7 @@ server {
   location ~ \.php$ {
     fastcgi_pass unix:/var/run/php5-fpm.sock;
     fastcgi_split_path_info ^(.+\.php)(/.+)$;
-    try_files $fastcgi_script_name =404;
+    try_files $fastcgi_cript_name =404;
     set $path_info $fastcgi_path_info;
     fastcgi_param PATH_INFO $path_info;
     fastcgi_index index.php;
@@ -85,7 +85,7 @@ vendor/bin/phpunit
 ```
 
 
-## Benutzung
+## Tag-Liste benutzen
 
 Tag-Liste links auf der Startseite füllen / aktualisieren:
 
@@ -96,17 +96,35 @@ php artisan docman:updatetags
 Alternativ oben rechts auf den entsprechenden Button klicken.
 
 
+## Import aus dem Dateisystem
+
+Docman unterstützt den Bulk-Import von PDF-Dateien aus einem lokalen Verzeichnis auf dem Server. Dazu muss das
+Verzeichnis in `.env` konfiguriert sein.
+
+Anschließend können PDF-Dateien z.B. mit `scp` auf den Server hochgeladen werden. Für den Import wird anschließend
+die `docman:importdirectory`-Action verwendet. Es existiert jedoch ein Wrapper-Skript. Als root ausführen:
+
+```
+script/docman-import-directory.sh
+```
+
+Es ist sicherlich nützlich, sich für das Skript einen Alias oder Link zu setzen, zum Beispiel:
+
+```
+sudo ln -s /path/to/repo/script/docman-import-directory.sh /usr/local/bin/docman-import
+docman-import
+```
+
+
 ## E-Mail-Empfang einrichten
 
 Docman unterstützt den Import von Dokumenten durch das Empfangen von E-Mails. Dafür auf dem Mailserver folgendes tun:
 
 ```
 $ cat /etc/aliases
-[...]
-
 docs: "|/usr/local/bin/docman-mail-receiver.pl"
 
-$ sudo cp scripts/docman-mail-receiver.pl /usr/local/bin
+$ sudo cp script/docman-mail-receiver.pl /usr/local/bin
 ```
 
 Die folgenden Perl-Module müssen installiert sein:
