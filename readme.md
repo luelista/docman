@@ -1,6 +1,79 @@
 # DocMan Dokumentenverwaltung
 
+## Deployment
 
+Repository:
+
+```
+git clone ...
+```
+
+Database:
+
+```
+CREATE DATABASE docman;
+CREATE USER 'docman'@'localhost' IDENTIFIED BY 'changeme1';
+GRANT ALL PRIVILEGES ON docman.* TO 'docman'@'localhost';
+FLUSH PRIVILEGES
+```
+
+Webserver (nginx, PHP-FPM):
+
+```
+server {
+  listen 443 ssl;
+  listen [::]:443 ssl;
+  include snippets/ssl.conf;
+
+  server_name docs.your-server.de;
+  root /path/to/repo/public;
+
+  index index.php index.html;
+  location / {
+    try_files $uri $uri/ /index.php?$query_string;
+  }
+
+  location ~ \.php$ {
+    fastcgi_pass unix:/var/run/php5-fpm.sock;
+    fastcgi_split_path_info ^(.+\.php)(/.+)$;
+    try_files $fastcgi_script_name =404;
+    set $path_info $fastcgi_path_info;
+    fastcgi_param PATH_INFO $path_info;
+    fastcgi_index index.php;
+    include fastcgi.conf;
+  }
+}
+```
+
+Dependencies:
+
+```
+apt-get install imagemagick pdftk ghostscript php5-mcrypt
+apt-get install nodejs nodejs-legacy npm
+npm install -g gulp
+curl -sS https://getcomposer.org/installer | sudo php -- --install-dir=/usr/local/bin --filename=composer
+```
+
+```
+composer install
+composer dumpautoload -o
+gulp
+```
+
+Configuration:
+
+```
+cp .env.example .env
+php artisan config:cache
+php artisan route:cache
+php artisan migrate
+```
+
+Testing:
+
+```
+vendor/bin/phpunit
+```
 
 ## Lizenz
 

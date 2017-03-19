@@ -29,7 +29,7 @@
 </form>
 	
 	<h2>Tags</h2>
-		<div id="taglist" class=list-group></div>
+    <div id="taglist" class=list-group></div>
 </div>
 <div class="col-md-9">
 <h2>Dokumente</h2>
