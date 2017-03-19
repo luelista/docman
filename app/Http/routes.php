@@ -27,6 +27,7 @@ Route::get('/documents', 'DocumentController@index');
 Route::post('/documents', 'DocumentController@store');
 Route::get('/tags', 'DocumentController@allTags');
 Route::get('/imports', 'DocumentController@importEditor');
+Route::get('/updatetags', 'DocumentController@updateTags');
 
 Route::post('/imports/update', 'ImportController@massUpdate');
 

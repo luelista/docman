@@ -214,4 +214,9 @@ class DocumentController extends Controller
 			$tags = DB::select("select count(tag) cc,tag from document_tags group by tag order by cc desc");
 			return response()->json(["tags" => $tags]);
 		}
+
+    public function updateTags(Request $request) {
+      \Artisan::call('docman:updatetags');
+      return redirect()->action('DocumentController@index');
+    }
 }
