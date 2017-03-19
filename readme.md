@@ -60,6 +60,7 @@ curl -sS https://getcomposer.org/installer | sudo php -- --install-dir=/usr/loca
 ```
 composer install
 composer dumpautoload -o
+npm install
 gulp
 ```
 
@@ -93,8 +94,35 @@ php artisan docman:updatetags
 ```
 
 
-## Lizenz
+## E-Mail-Empfang einrichten
 
+Docman unterstützt den Import von Dokumenten durch das Empfangen von E-Mails. Dafür auf dem Mailserver folgendes tun:
+
+```
+$ cat /etc/aliases
+[...]
+
+docs: "|/usr/local/bin/docman-mail-receiver.pl"
+
+$ sudo cp scripts/docman-mail-receiver.pl /usr/local/bin
+```
+
+Die folgenden Perl-Module müssen installiert sein:
+
+ - Email::MIME
+ - LWP::UserAgent
+ - HTTP::Request
+ - MIME::Base64
+
+In der Perl-Datei müssen die URL sowie HTTP-Auth-Zugangsdaten für den Docman-Server eingetragen werden. Am besten
+ein eigenes Set Credentials verwenden. Anschließend kann man PDF-Dokumente als Anhang an `docs@your-mail-server.de`
+schicken.
+
+Die Dokumente werden ohne Datum importiert, man kann über das Tool "Import" rechts oben für alle neuen Dokumente
+Datum, Titel und Tags festlegen.
+
+
+## Lizenz
 
 Copyright (c) 2015 Max Weller
 
