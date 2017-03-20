@@ -144,7 +144,7 @@ Datum, Titel und Tags festlegen.
 
 ## Lizenz
 
-Copyright (c) 2015 Max Weller
+Copyright (c) 2015-2017 Max Weller, Johannes Lauinger
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
