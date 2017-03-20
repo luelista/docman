@@ -8,6 +8,14 @@
 <form action="javascript:" method="post" id="editform" onsubmit="submitForm()">
   {{csrf_field()}}
 
+<b>Für alle setzen:</b><br />
+<span><span class="glyphicon glyphicon-calendar" style="vertical-align: top;"></span> <input type="text" value="" id="bulk-date" class="doc-date import-field" placeholder="Datum" style="vertical-align: top;"> <a href="javascript://" onclick="setToday(this)" style="vertical-align: top;">heute</a></span>&nbsp;&nbsp;
+<span class="glyphicon glyphicon-tags" style="vertical-align: top;"></span> <input type="text" value="" id="bulk-tags" placeholder="Tags" class="import-field" style="vertical-align: top;">&nbsp;&nbsp;
+<span class="glyphicon glyphicon-user" style="vertical-align: top;"></span> <input type="text" value="" id="bulk-mandant" placeholder="Mandant" class="import-field" style="vertical-align: top;">&nbsp;&nbsp;
+<span class="glyphicon glyphicon-pencil" style="vertical-align: top;"></span> <textarea id="bulk-desc" placeholder="Beschreibung" class="import-field"></textarea>&nbsp;&nbsp;
+<span class="btn btn-primary" style="vertical-align: top;" onclick="bulkSet()">Übernehmen</span>
+<hr />
+
 @foreach($docs as $doc)
 <div class="row document">
 	<div class="col-md-3">
@@ -15,10 +23,10 @@
 <small><a href="{{ action('DocumentController@show', [ $doc->id ]) }}" target="_blank">{{ $doc->displayDate() }}</a>
  &nbsp; &bull; &nbsp; {{ $doc->page_count }} Seite(n)</small><br><br>
 <span class="glyphicon glyphicon-text-width"></span> <input type="text" value="{{ $doc->title }}" name="doc[{{$doc->id}}][title]" placeholder="Titel" class="import-field"><br>
-<span><span class="glyphicon glyphicon-calendar"></span> <input type="text" value="{{ $doc->doc_date }}" name="doc[{{$doc->id}}][doc_date]" class="doc-date import-field" placeholder="Datum"> <a href="javascript://" onclick="setToday(this)">heute</a></span><br>
-<span class="glyphicon glyphicon-tags"></span> <input type="text" value="{{ trim($doc->tags) }}" name="doc[{{$doc->id}}][tags]" placeholder="Tags" class="import-field"><br>
-<span class="glyphicon glyphicon-user"></span> <input type="text" value="{{ $doc->doc_mandant }}" name="doc[{{$doc->id}}][doc_mandant]" placeholder="Mandant" class="import-field"><br>
-<span class="glyphicon glyphicon-pencil" style="vertical-align: top;"></span> <textarea value="{{ $doc->description }}" name="doc[{{$doc->id}}][description]" placeholder="Beschreibung" class="import-field"></textarea>
+<span><span class="glyphicon glyphicon-calendar"></span> <input type="text" value="{{ $doc->doc_date }}" name="doc[{{$doc->id}}][doc_date]" class="doc-date import-field field-date" placeholder="Datum"> <a href="javascript://" onclick="setToday(this)">heute</a></span><br>
+<span class="glyphicon glyphicon-tags"></span> <input type="text" value="{{ trim($doc->tags) }}" name="doc[{{$doc->id}}][tags]" placeholder="Tags" class="import-field field-tags"><br>
+<span class="glyphicon glyphicon-user"></span> <input type="text" value="{{ $doc->doc_mandant }}" name="doc[{{$doc->id}}][doc_mandant]" placeholder="Mandant" class="import-field field-mandant"><br>
+<span class="glyphicon glyphicon-pencil" style="vertical-align: top;"></span> <textarea name="doc[{{$doc->id}}][description]" placeholder="Beschreibung" class="import-field field-desc">{{ $doc->description }}</textarea>
 <br>
 </small>
   
@@ -91,6 +99,13 @@
         m = ("0"+D.getMonth()).slice(-2),
         d = ("0"+D.getDate()).slice(-2);
     el.parentElement.getElementsByTagName('input')[0].value = ""+y+"-"+m+"-"+d;
+  }
+  function bulkSet() {
+    if (!confirm("Das überschreibt die Felder. Sicher?")) return;
+    $('.field-date').val($('#bulk-date').val());
+    $('.field-tags').val($('#bulk-tags').val());
+    $('.field-mandant').val($('#bulk-mandant').val());
+    $('.field-desc').val($('#bulk-desc').val());
   }
   </script>
 @endsection

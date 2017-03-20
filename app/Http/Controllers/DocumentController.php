@@ -23,7 +23,7 @@ class DocumentController extends Controller
         $where = ""; $para = array();
         foreach($query as $q) {
           if (substr($q,0,1)=="!") { $where .= " NOT "; $q=substr($q,1); }
-          
+
           if (preg_match('/^(?:m:(.*)|([A-Z]+))$/', $q, $m)) {
             $where .= " doc_mandant = ? AND "; $para[] = $m[1];
           } else if (preg_match('/^d:([0-9]){4}$/', $q, $m)) {
@@ -41,17 +41,16 @@ class DocumentController extends Controller
             $q = "%$q%";
             $where .= " (title LIKE ? OR description LIKE ? OR tags LIKE ?) AND "; $para[] = $q;$para[] = $q;$para[] = $q;
           }
-          
-          
         }
-        
+
         $docs = Document::whereRaw("$where 1", $para)->orderBy('created_at', 'DESC')->get();
       } else {
         $docs = Document::orderBy('created_at', 'DESC')->get();
       }
 
+        $mandanten = DB::table('documents')->select(array('doc_mandant', DB::raw('count(doc_mandant) cc')))->groupBy('doc_mandant')->having('doc_mandant', '<>', '')->get();
 
-        return view('document_list', ['docs' => $docs]);
+        return view('document_list', ['docs' => $docs, 'mandanten' => $mandanten]);
     }
 
     /**
