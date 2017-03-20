@@ -46,7 +46,7 @@ class ImportDirectory extends Command
           $doc->doc_date = null;
           $doc->import_filename = preg_replace("/[^a-zA-Z0-9._-]+/", "-", basename($file));
           $doc->import_source = "filesystem";
-          $doc->title = basename($file);
+          $doc->title = substr(basename($file), 0, -4);
           $doc->description = "";
           $doc->save();
           rename($file, $doc->getPath().'/'.$doc->import_filename);

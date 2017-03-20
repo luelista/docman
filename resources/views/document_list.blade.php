@@ -31,6 +31,13 @@
 	
 	<h2>Tags</h2>
     <div id="taglist" class=list-group></div>
+
+  <h2>Mandanten</h2>
+  <div class="list-group">
+    @foreach($mandanten as $m)
+    <a class="list-group-item" href="?q=m:{{$m->doc_mandant}}">{{$m->doc_mandant}} <span class="badge">{{$m->cc}}</span></a>
+    @endforeach
+  </div>
 </div>
 <div class="col-md-9">
 <h2>Dokumente</h2>
@@ -40,7 +47,7 @@
 <a href="{{ action('DocumentController@show', [$doc->id]) }}">
 	<img src="{{ action('DocumentController@thumbnail', [$doc->id, 1]) }}" width=150 height=150>
 </a>
-	<a href="javascript:" class="pull-right btn btn-xs btn-default">{{$doc->doc_mandant}}</a>
+	<a href="?q=m:{{$doc->doc_mandant}}" class="pull-right btn btn-xs btn-default">{{$doc->doc_mandant}}</a>
 <small>{{ $doc->displayDate() }} </small>	<br>
 <a href="{{ action('DocumentController@show', [$doc->id]) }}">
 

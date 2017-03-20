@@ -18,7 +18,7 @@
 <div class="row"><div class="col-md-3 col-md-push-9">
 <p><b><input type="date" name="doc_date" value="{{ ($doc->doc_date == null) ? "" : $doc->doc_date->toDateString() }}" style="width:100%;"></b></p>
 	<p><input type="text" name="doc_mandant" value="{{ $doc->doc_mandant }}" size=10 placeholder=Mandant style="width:100%;"></p>
- <p><span class="glyphicon glyphicon-download-alt"></span> <a href='{{ action('DocumentController@viewFile',[$doc->id,$doc->import_filename]) }}'>{{$doc->import_filename}}</a>
+ <p><span class="glyphicon glyphicon-download-alt"></span> <a target=_blank href='{{ action('DocumentController@viewFile',[$doc->id,$doc->import_filename]) }}'>{{$doc->import_filename}}</a>
 	({{ readable_size($doc->file_size)}})</p>
 <p><span class="glyphicon glyphicon-file"></span> @if ($doc->page_count == 1)
 eine Seite
