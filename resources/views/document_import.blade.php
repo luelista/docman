@@ -32,9 +32,11 @@
   </div>
   </div>
 </div>
+<hr />
 @endforeach
 <input type="submit" class="btn btn-primary">
   </form>
+<div style="padding-bottom: 2rem;"></div>
 <style>
 	.preview {height:220px; overflow: auto;border: 2px solid #ddd;}
 	.preview img { max-width: 100%; }
