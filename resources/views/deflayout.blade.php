@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="{{ url('style/css/bootstrap-yeti-theme.min.css') }}">
     <link rel="stylesheet" href="{{ url('style/style.css') }}">
     <script>csrf="{{ csrf_token() }}"</script>
-    <script src="https://static.luelistan.net/jquery/jquery-2.1.3.min.js"></script>
+    <script src="{{ url('style/js/jquery-2.1.3.min.js') }}"></script>
     <script src="{{ url('style/helpers.js') }}"></script>
 </head>
   <body>
