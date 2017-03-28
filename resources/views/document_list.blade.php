@@ -37,7 +37,7 @@
 @foreach($docs as $doc)
 <div class="document">
 <a href="{{ action('DocumentController@show', [$doc->id]) }}">
-	<img src="{{ action('DocumentController@thumbnail', [$doc->id, 1]) }}" width=150 height=150>
+	<img src="{{ action('DocumentController@thumbnail', [$doc->id, $doc->getToken(), 1]) }}" width=150 height=150>
 </a>
 	<a href="javascript:" class="pull-right btn btn-xs btn-default">{{$doc->doc_mandant}}</a>
 <small>{{ $doc->displayDate() }} </small>	<br>

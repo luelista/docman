@@ -14,7 +14,7 @@
 <tr><td></td><td colspan=2>
 @for($i=1; $i<= $doc->page_count; $i++)
 <div class="thumbnail pull-left">
-<img src="{{ action('DocumentController@thumbnail', [$doc->id, $i]) }}" width=150 height=150 alt="{{$i}}">
+<img src="{{ action('DocumentController@thumbnail', [$doc->id, $doc->getToken(), $i]) }}" width=150 height=150 alt="{{$i}}">
 </div>
 @endfor
 </td></tr>

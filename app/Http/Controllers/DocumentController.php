@@ -100,32 +100,7 @@ class DocumentController extends Controller
     public function show($id)
     {
         $doc = Document::findOrFail($id);
-        return view('document_show', ['doc' => $doc]);
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function preview($id, $page)
-    {
-        $doc = Document::find($id);
-        $previewFile = $doc->getPagePreviewFilespec($page);
-        return response()->download($previewFile, $doc->import_filename . '.jpg', [], 'inline');
-    }
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function thumbnail($id, $page)
-    {
-        $doc = Document::find($id);
-        $previewFile = $doc->getThumbFilespec($page);
-        return response()->download($previewFile, $doc->import_filename . '.jpg', [], 'inline');
+        return view('document_show', ['doc' => $doc, 'editable'=>true]);
     }
 
     /**
@@ -213,5 +188,53 @@ class DocumentController extends Controller
 		public function allTags() {
 			$tags = DB::select("select count(tag) cc,tag from document_tags group by tag order by cc desc");
 			return response()->json(["tags" => $tags]);
-		}
+    }
+
+
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function showShareLink($id, $token)
+    {
+        $doc = Document::findOrFail($id);
+        if ($doc->getToken() !== $token)
+            abort(404);
+        return view('document_show', ['editable'=> false, 'doc' => $doc]);
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function preview($id, $token, $page)
+    {
+        $doc = Document::find($id);
+        if ($doc->getToken() !== $token)
+            abort(404);
+        $previewFile = $doc->getPagePreviewFilespec($page);
+        return response()->download($previewFile, $doc->import_filename . '.jpg', [], 'inline');
+    }
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function thumbnail($id, $token, $page)
+    {
+        $doc = Document::find($id);
+        if ($doc->getToken() !== $token)
+            abort(404);
+        $previewFile = $doc->getThumbFilespec($page);
+        return response()->download($previewFile, $doc->import_filename . '.jpg', [], 'inline');
+    }
+
+
+
 }

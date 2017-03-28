@@ -1,22 +1,40 @@
-<IfModule mod_rewrite.c>
-    <IfModule mod_negotiation.c>
-        Options -MultiViews
-    </IfModule>
 
-    RewriteEngine On
 
-    # Redirect Trailing Slashes If Not A Folder...
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^(.*)/$ /$1 [L,R=301]
+RewriteEngine On
+RewriteBase /docs
 
-    # Handle Front Controller...
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteRule ^ index.php [L]
+RewriteCond %{HTTPS} !=on
+RewriteCond %{ENV:HTTPS} !=on
+RewriteRule .* https://%{SERVER_NAME}%{REQUEST_URI} [R=301,L]
+
+<IfModule mod_negotiation.c>
+  Options -MultiViews
 </IfModule>
+
+# Redirect Trailing Slashes If Not A Folder...
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)/$ /$1 [L,R=301]
+
+SetEnvIf Request_URI ^/(shared|style)/ SHARELINK=yes
+
+# Handle Front Controller...
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^ index.php [L]
 
 AuthType Basic
 AuthName "Geheimer Bereich"
-AuthUserFile /var/www/virtual/mwdoc/.htuser
-Require valid-user
+#AuthUserFile /var/www/mwdocman/.htuser
+AuthUserFile /data/Multimedia/.htpasswd
+#Require valid-user
+Require user mw
+
+# Die Magie!
+#Order Deny,Allow
+#Deny from all
+#Satisfy Any
+#Allow from env=!HTTPS
+#Allow from env=SHARELINK
+#Require valid-user
+
 

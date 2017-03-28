@@ -24,7 +24,7 @@
 <div class="col-md-9">
 <div class="preview">
 <a href="{{ action('DocumentController@viewFile', [$doc->id,"view.pdf"]) }}" onclick="window.open(this.href,'foo','width=800,height=800');return false;" target="_blank">
-	<img src="{{ action('DocumentController@preview', [$doc->id, 1]) }}">
+	<img src="{{ action('DocumentController@preview', [$doc->id, $doc->getToken(), 1]) }}">
 </a>
   </div>
   </div>
