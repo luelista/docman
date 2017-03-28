@@ -1,12 +1,10 @@
 # DocMan Dokumentenverwaltung
 
+Online-Verwaltung von PDF-Dokumenten mit Metadaten und Suche. Unterstützt Tagging und öffentliches Teilen von
+Dokumenten. Import über die Weboberfläche, per E-Mail-Anhang oder aus einem Ordner im Dateisystem.
+
+
 ## Deployment
-
-Repository:
-
-```
-git clone ...
-```
 
 Datenbank:
 
@@ -36,6 +34,11 @@ server {
     auth_basic_user_file /path/to/your/.htpasswd;
   }
 
+  location ~ /shared|/style {
+    try_files $uri $uri/ /index.php?$query_string;
+    auth_basic off;
+  }
+
   location ~ \.php$ {
     fastcgi_pass unix:/var/run/php5-fpm.sock;
     fastcgi_split_path_info ^(.+\.php)(/.+)$;
@@ -52,22 +55,18 @@ Abhängigkeiten:
 
 ```
 apt-get install imagemagick pdftk ghostscript php5-mcrypt
-apt-get install nodejs nodejs-legacy npm
-npm install -g gulp
 curl -sS https://getcomposer.org/installer | sudo php -- --install-dir=/usr/local/bin --filename=composer
 ```
 
 ```
 composer install
-composer dumpautoload -o
-npm install
-gulp
 ```
 
 Konfiguration:
 
 ```
 cp .env.example .env
+php artisan key:generate
 php artisan config:cache
 php artisan route:cache
 php artisan migrate
@@ -94,6 +93,13 @@ php artisan docman:updatetags
 ```
 
 Alternativ oben rechts auf den entsprechenden Button klicken.
+
+
+## Dokumente mit dritten Personen teilen
+
+Auf der Detailseite eines Dokuments wird unter dem Speichern-Button ein Share-Link angezeigt. Diesen kann man
+weitergeben, um lesenden Zugriff ohne Eingabe eines Passwortes auf genau dieses Dokument zu geben. Die originale
+PDF-Datei kann mit diesem Link nicht heruntergeladen werden.
 
 
 ## Import aus dem Dateisystem
