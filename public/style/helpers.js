@@ -12,7 +12,8 @@ function iniDocumentShow() {
 		}
 	}
 }
-function deleteDoc(deleteURL) {
+function deleteDoc(id, deleteURL) {
+  if (!confirm("Soll das Dokument #"+id+" wirklich gelöscht werden?")) return;
   $.ajax({
     method: 'DELETE',
     url: deleteURL,
