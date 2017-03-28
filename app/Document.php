@@ -34,6 +34,11 @@ class Document extends Model
         file_put_contents($path . '/' . '_title', $this->title);
     }
 
+
+    public function getToken() {
+        return md5($_ENV["APP_KEY"] . $this->id . $this->doc_name . $this->created_at);
+    }
+
     public function getTags() {
         $t = trim($this->tags);
         if ($t == "") return [];

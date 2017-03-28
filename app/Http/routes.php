@@ -15,8 +15,8 @@ Route::get('/', function () {
     return redirect()->action('DocumentController@index');
 });
 Route::get('/documents/list_selected', 'DocumentController@listSelected');
-Route::get('/documents/{id}/thumbnail/{page}', 'DocumentController@thumbnail');
-Route::get('/documents/{id}/preview/{page}', 'DocumentController@preview');
+//Route::get('/documents/{id}/thumbnail/{page}', 'DocumentController@thumbnail');
+//Route::get('/documents/{id}/preview/{page}', 'DocumentController@preview');
 Route::get('/documents/{id}/raw/{filename}', 'DocumentController@viewFile');
 Route::get('/documents/{id}', 'DocumentController@show');
 Route::get('/documents/{id}/edit', 'DocumentController@edit');
@@ -31,4 +31,8 @@ Route::get('/imports', 'DocumentController@importEditor');
 Route::post('/imports/update', 'ImportController@massUpdate');
 
 Route::post('/webHooks/handleMail', 'ImportController@handleMail');
+
+Route::get('/shared/{id}_{token}', 'DocumentController@showShareLink');
+Route::get('/shared/{id}_{token}/thumbnail/{page}', 'DocumentController@thumbnail');
+Route::get('/shared/{id}_{token}/preview/{page}', 'DocumentController@preview');
 
