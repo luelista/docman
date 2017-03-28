@@ -28,7 +28,7 @@
 <div class="row"><div class="col-md-3 col-md-push-9">
 <p><b><input type="date" name="doc_date" value="{{ ($doc->doc_date == null) ? "" : $doc->doc_date->toDateString() }}" class="form-control"></b></p>
 
-<p><input type="text" name="doc_mandant" value="{{ $doc->doc_mandant }}" class="form-control" size=10></p>
+<p><input type="text" name="doc_mandant" value="{{ $doc->doc_mandant }}" class="form-control" placeholder=Mandant size=10></p>
 
 <p style=" word-wrap: break-word; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; ">
   <span class="glyphicon glyphicon-download-alt"></span>
