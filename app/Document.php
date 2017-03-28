@@ -47,7 +47,7 @@ class Document extends Model
 
     public function getPath() {
         if (!$this->doc_name) throw new \Exception("missing doc_name, must save instance first");
-        $path = $_ENV["DOC_DIRECTORY"] . '/' . $this->doc_name;
+        $path = env("DOC_DIRECTORY") . '/' . $this->doc_name;
         return $path;
     }
 
@@ -70,7 +70,7 @@ class Document extends Model
         $tmp = escapeshellarg($this->getPath() . '/' . '_tmp%d.jpg');
         $dst1 = escapeshellarg($this->getPagePreviewFilespec(1));
 
-        $pagecount = exec('/usr/bin/pdfinfo '.$src.' | awk \'/Pages/ {print $2}\'', $output);
+        $pagecount = exec('/usr/bin/pdfinfo '.$src.' | awk \'/Pages/ {print $2}\'');
         $this->page_count = $pagecount;
         $this->file_size = filesize($this->getPath() . '/' . $this->import_filename);
         $this->save();
@@ -108,20 +108,20 @@ class Document extends Model
         if ($newOrig == "" || $newExtr == "")
             throw new \Exception("Refusing to create empty document");
         $doc = new Document();
-        $doc->doc_date = null;
+        $doc->doc_date = $this->doc_date;
         $doc->import_filename = str_replace(" ", ".", $newExtr) . "__" . $this->import_filename;
         $doc->import_source = $this->import_source."_split";
         $doc->title = "(extracted) ".$this->title;
         $doc->description = "";
         $doc->save();
 
-        $pdftk_cmd = $_ENV["PDFTK_BIN"] . " " . $src . " cat " . $newExtr . " output " . escapeshellarg($doc->getPath() . "/" . $doc->import_filename);
+        $pdftk_cmd = env("PDFTK_BIN") . " " . $src . " cat " . $newExtr . " output " . escapeshellarg($doc->getPath() . "/" . $doc->import_filename);
         shell_exec($pdftk_cmd);
         $doc->updatePreview();
 
         if ($removeFromOrig) {
             $this->import_filename = str_replace(" ", ".", $newOrig) . "__" . $this->import_filename;
-            $pdftk_cmd = $_ENV["PDFTK_BIN"] . " " . $src . " cat " . $newOrig . " output " . escapeshellarg($this->getPath() . "/" . $this->import_filename);
+            $pdftk_cmd = env("PDFTK_BIN") . " " . $src . " cat " . $newOrig . " output " . escapeshellarg($this->getPath() . "/" . $this->import_filename);
             shell_exec($pdftk_cmd);
             $this->updatePreview();
             $this->save();
@@ -135,7 +135,7 @@ class Document extends Model
 
         $src = escapeshellarg($this->getPath() . '/' . $this->import_filename);
         $target = escapeshellarg($this->getPath() . '/pg_%d.pdf');
-        $pdftk_cmd = $_ENV["PDFTK_BIN"] . " " . $src . " burst output " . $target;
+        $pdftk_cmd = env("PDFTK_BIN") . " " . $src . " burst output " . $target;
         shell_exec($pdftk_cmd);
 
         $docList = array();
@@ -162,9 +162,9 @@ class Document extends Model
         $dst = escapeshellarg($this->getPath() . '/' . $this->import_filename);
 
         if ($position == "before")
-            $pdftk_cmd = $_ENV["PDFTK_BIN"] . " " . $src2 . " " . $src1 . " cat output " . $dst;
+            $pdftk_cmd = env("PDFTK_BIN") . " " . $src2 . " " . $src1 . " cat output " . $dst;
         else
-            $pdftk_cmd = $_ENV["PDFTK_BIN"] . " " . $src1 . " " . $src2 . " cat output " . $dst;
+            $pdftk_cmd = env("PDFTK_BIN") . " " . $src1 . " " . $src2 . " cat output " . $dst;
 
         shell_exec($pdftk_cmd);
         $this->save();

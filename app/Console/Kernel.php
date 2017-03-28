@@ -16,6 +16,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\Inspire::class,
         \App\Console\Commands\UpdatePreview::class,
         \App\Console\Commands\UpdateTags::class,
+        \App\Console\Commands\ImportDirectory::class,
     ];
 
     /**
