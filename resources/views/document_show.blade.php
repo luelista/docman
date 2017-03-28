@@ -47,10 +47,16 @@ eine Seite
 <p title="Hinzugefügt {{$doc->created_at}}">	<span class="glyphicon glyphicon-asterisk"></span> {{ $doc->created_at->toDateString() }}</p>
 
 <p><input type="text" placeholder="Tags" name="tags" value="{{ trim($doc->tags) }}" style=" width:100%" class="form-control"></p>
-<textarea name="description" style="width: 100%; height: 190px;" class="form-control">{{ $doc->description }}</textarea>
+<p><textarea name="description" style="width: 100%; height: 190px;" class="form-control">{{ $doc->description }}</textarea></p>
+
 @if ($editable)
-  <input type="submit">
-<input type="text" readonly value="{{ action('DocumentController@showShareLink', [$doc->id, $doc->getToken()]) }}" class="form-control" style="width:100%" onmouseenter="this.select()">
+<p><input type="submit" value="Änderungen speichern" class="btn btn-primary" /></p>
+@endif
+
+<hr />
+
+@if ($editable)
+<p><input type="text" readonly value="{{ action('DocumentController@showShareLink', [$doc->id, $doc->getToken()]) }}" class="form-control" style="width:100%" onmouseenter="this.select()"></p>
 @endif
 
 <p class="hoverThumbs">
