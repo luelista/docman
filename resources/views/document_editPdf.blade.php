@@ -1,7 +1,7 @@
 @extends("deflayout")
 
 @section("toolbar")
-<a href='{{ action('DocumentController@show', [$doc->id]) }}' class="btn btn-default">Abbrechen</a>
+<div class="navbar-form navbar-right"><a href='{{ action('DocumentController@show', [$doc->id]) }}' class="btn btn-default">Abbrechen</a></div>
 @endsection
 
 @section("main")
@@ -11,21 +11,25 @@
   .panel-body { min-height: 150px; }
 }
 </style>
+<br>
 
 <div class="row" style="margin-top: 5px; margin-bottom: 5px;">
-<div class="col-md-3">[{{ $doc->doc_mandant }}] <b>{{ $doc->title }}</b><br>
-<span class="glyphicon glyphicon-calendar"></span> {{ ($doc->doc_date == null) ? "(kein Datum)" : $doc->doc_date->toDateString() }}</div>
+<div class="col-md-3">[{{ $doc->doc_mandant }}] <b>{{ $doc->title }}</b>
+</div>
 
- <div class="col-md-3"><span class="glyphicon glyphicon-download-alt"></span> <a href='{{ action('DocumentController@viewFile',[$doc->id,$doc->import_filename]) }}'>{{$doc->import_filename}}</a><br>
-  ({{ readable_size($doc->file_size)}})</div>
+ <div class="col-md-3"><span class="glyphicon glyphicon-download-alt"></span> <a href='{{ action('DocumentController@viewFile',[$doc->id,$doc->import_filename]) }}'>{{$doc->import_filename}}</a></div>
 
 <div class="col-md-3"><span class="glyphicon glyphicon-file"></span> @if ($doc->page_count == 1)
 eine Seite
 @else
 {{$doc->page_count}} Seiten
-@endif
+@endif<br>
+  ({{ readable_size($doc->file_size)}})
 	</div>
-<div class="col-md-3" title="Hinzugefügt {{$doc->created_at}}">	<span class="glyphicon glyphicon-asterisk"></span> {{ $doc->created_at->toDateString() }}</div>	
+<div class="col-md-3" title="Hinzugefügt {{$doc->created_at}}">
+<span class="glyphicon glyphicon-calendar"></span> {{ ($doc->doc_date == null) ? "(kein Datum)" : $doc->doc_date->toDateString() }}
+<br>
+  <span class="glyphicon glyphicon-asterisk"></span> {{ $doc->created_at->toDateString() }}</div>	
 </div>
 
 

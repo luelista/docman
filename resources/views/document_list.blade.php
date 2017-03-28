@@ -1,11 +1,13 @@
 @extends("deflayout")
 
 @section("toolbar")
-<form action="{{ action('DocumentController@index') }}" method="get" class="form-inline" style="display:inline">
+<form action="{{ action('DocumentController@index') }}" method="get" class="navbar-form navbar-left">
 	
 	<input type="text" placeholder="Suche" name="q" value="{{ Input::get("q") }}" class="form-control" size=60>
-	<a href="{{action('DocumentController@importEditor')}}" class="pull-right btn btn-default">Import</a>
 </form>
+<ul class="nav navbar-nav navbar-right">
+  <li><a href="{{action('DocumentController@importEditor')}}">Import</a></li>
+</ul>
 @endsection
 
 

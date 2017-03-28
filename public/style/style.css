@@ -2,7 +2,7 @@
 @media (screen and min-width: 800px) {
   header { height: 54px; }
 }
-header { padding: 10px 0; background: #ddd; }
+nav.navbar { margin-bottom: 0; }
 a.brand { color: #333; font-weight: bold; font-size: 12pt; display: inline-block; padding: 18px; margin: -15px 0 -15px -15px; }
 a.brand:hover { background: #bbb; }
 
