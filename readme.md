@@ -56,9 +56,6 @@ Abhängigkeiten:
 ```
 apt-get install imagemagick pdftk ghostscript php5-mcrypt
 curl -sS https://getcomposer.org/installer | sudo php -- --install-dir=/usr/local/bin --filename=composer
-```
-
-```
 composer install
 ```
 
