@@ -42,7 +42,7 @@
   </div>
 </div>
 <div class="col-md-9">
-<h2>Dokumente</h2>
+<h2>Dokumente ({{count($docs)}})</h2>
 
 @foreach($docs as $doc)
 <div class="document">
