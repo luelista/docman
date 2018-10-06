@@ -65,8 +65,30 @@ eine Seite
 @endfor
 </p>
 
+@if ($editable)
+<p><input type="button" id="updatePreview" value="Vorschau aktualisieren" class="btn btn-default" /></p>
+@endif
 	</div>
 <div class="col-md-9 col-md-pull-3">
+@if ($doc->page_count == 0)
+<div class="alert alert-info">
+<h4>Dokument wird im Hintergrund bearbeitet</h4>
+<progress id="processingProgress" style="width:100%"></progress>
+<pre id="processingLog">Eile mit Weile</pre>
+<script>
+function getLog(){
+    $.get("{{ action('ImportController@fetchLog', [$doc->id, $doc->getToken() ]) }}", function(res) {
+        $("#processingLog").text(res.log.log+"\n"+res.log.stdout);
+        var p = res.log.progress.split(/\//);
+        $("#processingProgress").attr({'max':p[1],'value':p[0]});
+        setTimeout(getLog, 1500);
+    },"json");
+}
+getLog();
+</script>
+</div>
+@endif
+
 <img src="{{ action('DocumentController@preview', [$doc->id, $doc->getToken(), 1]) }}" id="mainImage" style="max-width: 100%">
 </div>
 </div>
@@ -84,11 +106,22 @@ eine Seite
 .hoverThumbs img.current { border-color: #f00; }
 </style>
 <script>
+var secure_token = '{{ csrf_token() }}';
 iniDocumentShow()
 $(".hoverThumbs img").mouseover(function(e) {
   $(".hoverThumbs .current").removeClass("current");
   $(this).addClass("current");
   $('#mainImage').attr('src',this.src.replace(/thumbnail/, 'preview'));
+});
+$("#updatePreview").click(function(){
+    $(this).attr("disabled",true);
+    $.post("{{ action('DocumentController@updatePreview', [$doc->id]) }}", {_token:secure_token}, function(r) {
+        console.log(r);
+        $("#updatePreview").val("Gestartet");
+        setTimeout(function(){
+            location=location;
+        },200);
+    }, "json");
 });
 </script>
 @endsection

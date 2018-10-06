@@ -39,7 +39,7 @@ class DocumentController extends Controller
             $where .= " title LIKE ? AND "; $para[] = $q;
           } else {
             $q = "%$q%";
-            $where .= " (title LIKE ? OR description LIKE ? OR tags LIKE ?) AND "; $para[] = $q;$para[] = $q;$para[] = $q;
+            $where .= " (title LIKE ? OR description LIKE ? OR tags LIKE ? OR ocrtext LIKE ?) AND "; $para[] = $q;$para[] = $q;$para[] = $q;$para[] = $q;
           }
         }
 
@@ -75,18 +75,25 @@ class DocumentController extends Controller
         $file = $request->file("document");
         if (!$file) abort(400, "Missing file");
         if ($file->getClientOriginalExtension() != 'pdf') abort(406, "Invalid file type (only pdf accepted)");
-    
+
         $doc = new Document();
         $doc->doc_date = $request->input("doc_date");
         $doc->import_filename = preg_replace("/[^a-zA-Z0-9._-]+/", "-", $file->getClientOriginalName());
-				$doc->import_source = "web";
+        $doc->import_source = "web";
         $doc->title = $request->input("title");
         $doc->description = "";
         $doc->save();
-        
+
         $file->move($doc->getPath(), $doc->import_filename);
-        $doc->updatePreview();
-        
+        if ($_ENV['UPDATE_PREVIEW_IN_BACKGROUND']) {
+            $lockFile = $doc->getPath() . '/_updatePreview.pid';
+            $logfile = $doc->getPath() . '/_updatePreview_stdout.log';
+
+            shell_exec("php ".escapeshellarg(base_path() . '/artisan')." docman:updatepreview ".intval($doc->id)." > ".escapeshellarg($logfile)." 2>&1 & echo \$! > ".escapeshellarg($lockFile));
+        } else {
+            $doc->updatePreview();
+        }
+
         return redirect()->action('DocumentController@show', [$doc->id]);
     }
 
@@ -100,6 +107,23 @@ class DocumentController extends Controller
     {
         $doc = Document::findOrFail($id);
         return view('document_show', ['doc' => $doc, 'editable'=>true]);
+    }
+
+    /**
+     * Update the preview images and OCR.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function updatePreview($id)
+    {
+        $doc = Document::findOrFail($id);
+        $lockFile = $doc->getPath() . '/_updatePreview.pid';
+        $logfile = $doc->getPath() . '/_updatePreview_stdout.log';
+
+        $cmd = "cd ".escapeshellarg(base_path())." && php ".escapeshellarg(base_path() . '/artisan')." docman:updatepreview ".intval($doc->id)." > ".escapeshellarg($logfile)." 2>&1 & echo \$! > ".escapeshellarg($lockFile);
+        exec($cmd);
+        return response()->json(["success" => true,"command"=>$cmd,"log"=>$doc->getLog()]);
     }
 
     /**

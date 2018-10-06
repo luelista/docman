@@ -9,6 +9,13 @@ class Document extends Model
 {
     use SoftDeletes;
     protected $dates = ['doc_date', 'created_at', 'updated_at', 'deleted_at'];
+    
+    public function pages() {
+        return $this->hasMany('App\DocumentPage');
+    }
+    public function tags() {
+        return $this->hasMany('App\DocumentTag');
+    }
 
     public function save(array $options = []) {
         $this->tags = " ".trim($this->tags)." ";
@@ -64,34 +71,61 @@ class Document extends Model
     public function getPagePreviewFilespec($page = 1) {
         return $this->getPath() . '/' . '_page' . $page . '.jpg';
     }
-
+    public function debugLog($str, $clear=FALSE, $page = FALSE, $count = FALSE) {
+        file_put_contents($this->getPath() . '/_debug.log', date("H:i:s")." $str\n", $clear?0: FILE_APPEND);
+        if ($page !==FALSE) file_put_contents($this->getPath() . '/_progress.log', $page.'/'.$count);
+    }
+    public function getLog() {
+        return ["log"=>@file_get_contents($this->getPath() . '/_debug.log'), 
+            "progress"=>@file_get_contents($this->getPath() . '/_progress.log'),
+            "stdout"=>@file_get_contents($this->getPath() . '/_updatePreview_stdout.log')];
+    }
     public function updatePreview() {
+        $this->debugLog("updating preview...",true, 0, 0);
+        $this->page_count = 0;
+        $this->save();
         $src = escapeshellarg($this->getPath() . '/' . $this->import_filename);
-        $tmp = escapeshellarg($this->getPath() . '/' . '_tmp%d.jpg');
+        $tmp = escapeshellarg($this->getPath() . '/' . '_tmp%d.tiff');
         $dst1 = escapeshellarg($this->getPagePreviewFilespec(1));
 
         $pagecount = exec('/usr/bin/pdfinfo '.$src.' | awk \'/Pages/ {print $2}\'');
         $this->page_count = $pagecount;
         $this->file_size = filesize($this->getPath() . '/' . $this->import_filename);
-        $this->save();
+        $this->ocrtext = '';
 
-        $cmd = "gs -dBATCH -dNOPAUSE -dQUIET -sDEVICE=jpeg -sOutputFile=$tmp -r144 $src";
+        $this->debugLog("Splitting PDF", 1, $pagecount+1);
+        $cmd = "gs -dBATCH -dNOPAUSE -dQUIET -sDEVICE=tiff24nc -sOutputFile=$tmp -r144 $src";
         shell_exec($cmd);
-        for($pag = 1; $pag <= $pagecount; $pag++) {
+        
+        $this->pages()->delete();
+        for($pag = 1; $pag <= $pagecount; $pag++) {   $this->debugLog("Handling page $pag/$pagecount", FALSE, $pag, $pagecount+1);
             $dst1 = escapeshellarg($this->getPagePreviewFilespec($pag));
             $dst2 = escapeshellarg($this->getThumbFilespec($pag));
 
-            $tsize = 800;
+            $tsize = 800;    $this->debugLog("Thumbnail $tsize px");
             $cmd = "convert ".sprintf($tmp, $pag)." -quality 70 -resize '{$tsize}x{$tsize}^' -trim -fuzz 70% +repage $dst1";
             shell_exec($cmd);
 
-            $tsize = 150;
+            $tsize = 150;    $this->debugLog("Thumbnail $tsize px");
             $cmd = "convert ".sprintf($tmp, $pag)." -resize '{$tsize}x{$tsize}^' -crop '{$tsize}x{$tsize}+0+0' -trim -fuzz 70% $dst2";
             shell_exec($cmd);
+
+            if ($pag < env("OCR_PAGE_LIMIT")) {  $this->debugLog("OCR");
+                $cmd = "tesseract -l deu ".sprintf($tmp, $pag)." ".escapeshellarg($this->getPath() . "/_ocrtext" . $pag);
+                shell_exec($cmd);
+                $ocrtext = file_get_contents($this->getPath() . "/_ocrtext" . $pag . ".txt") . "\n";
+            } else $ocrtext = NULL;
+            $this->debugLog("Saving");
+            $pageInfo = new DocumentPage([ 'page_index' => $pag, 'page_number' => NULL, 'ocrtext' => $ocrtext ]);
+            $this->pages()->save($pageInfo);
         }
 
-        shell_exec("rm " . escapeshellarg($this->getPath()) . '/' . '_tmp*.jpg');
+        $this->save();
+        shell_exec("rm " . escapeshellarg($this->getPath()) . '/' . '_tmp*.tiff');
+        $this->debugLog("Done", FALSE, $pagecount+1, $pagecount+1);
+        //shell_exec("rm " . escapeshellarg($this->getPath()) . '/' . '_ocrtext*.txt');
     }
+
 
     public function extractPdfPages($pages, $removeFromOrig) {
         $src = escapeshellarg($this->getPath() . '/' . $this->import_filename);
