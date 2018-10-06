@@ -25,7 +25,7 @@
 		<input type="text" name="title" placeholder="Dokument-Titel" class="form-control">
 	</div>
 	<div class=form-group>
-		<input type="file" name="document">
+		<input type="file" name="document" onchange="if(this.form.title.value=='')this.form.title.value=this.value.replace(/.*[\/\\]/, '')">
 	</div>
 	
 		<input type="submit" value="OK" class="btn btn-primary">

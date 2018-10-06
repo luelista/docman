@@ -26,22 +26,30 @@ class ImportController extends Controller
      */
     public function handleMail(Request $request)
     {
+        if ($request->query("token") != $_ENV["WEBHOOK_TOKEN"]) abort(403, 'Invalid token');
         $file = $request->file("attachment-1");
         if (!$file) abort(400, "Missing file");
         if ($file->getClientOriginalExtension() != 'pdf') abort(406, "Invalid file type (only pdf accepted)");
-        
+
+        ignore_user_abort(TRUE);
+        set_time_limit(100);
         $doc = new Document();
         $doc->doc_date = $request->has("doc_date") ? $request->input("doc_date") : null;
         $doc->import_filename = preg_replace("/[^a-zA-Z0-9._-]+/", "-", $file->getClientOriginalName());
         $doc->import_source = $request->input("from");
         $doc->title = $request->input("subject");
         $doc->description = $request->input("body-plain");
+
         $doc->save();
-        
+
+        echo $doc->id."\n";
+        flush();
+
         $file->move($doc->getPath(), $doc->import_filename);
+
         $doc->updatePreview();
-        
-        var_dump($request->input());
+
+        #var_dump($request->input());
     }
 
     /**
@@ -61,6 +69,14 @@ class ImportController extends Controller
           $doc->save();
         }
         return response()->json(["success"=>"true"]);
+    }
+
+
+    public function fetchLog($id, $token) {
+        $doc = Document::findOrFail($id);
+        if ($doc->getToken() !== $token)
+            abort(404);
+        return response()->json(["log" => $doc->getLog()]);
     }
 
 }
