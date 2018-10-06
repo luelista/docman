@@ -83,7 +83,7 @@ eine Seite
       <div class="thumbnail pull-left">
       <input type="checkbox" name="extractPage[]" value="{{$i}}" id="extractPage_{{ $i }}">
       <label for="extractPage_{{$i}}">
-      <img src="{{ action('DocumentController@thumbnail', [$doc->id, $i]) }}" width=150 height=150 alt="{{$i}}">
+      <img src="{{ action('DocumentController@thumbnail', [$doc->id, $doc->getToken(), $i]) }}" width=150 height=150 alt="{{$i}}">
       </label>
       </div>
       @endfor

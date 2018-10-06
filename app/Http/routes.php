@@ -21,6 +21,7 @@ Route::get('/documents/{id}/raw/{filename}', 'DocumentController@viewFile');
 Route::get('/documents/{id}', 'DocumentController@show');
 Route::get('/documents/{id}/edit', 'DocumentController@edit');
 Route::post('/documents/{id}/splitPdf', 'DocumentController@splitPdf');
+Route::post('/documents/{id}/updatePreview', 'DocumentController@updatePreview');
 Route::delete('/documents/{id}', 'DocumentController@destroy');
 Route::post('/documents/{id}', 'DocumentController@update');
 Route::get('/documents', 'DocumentController@index');
@@ -29,6 +30,7 @@ Route::get('/tags', 'DocumentController@allTags');
 Route::get('/imports', 'DocumentController@importEditor');
 Route::get('/updatetags', 'DocumentController@updateTags');
 
+Route::get('/documents/{id}_{token}/log', 'ImportController@fetchLog');
 Route::post('/imports/update', 'ImportController@massUpdate');
 
 Route::post('/webHooks/handleMail', 'ImportController@handleMail');

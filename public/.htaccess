@@ -1,7 +1,7 @@
 
 
 RewriteEngine On
-RewriteBase /docs
+RewriteBase /
 
 RewriteCond %{HTTPS} !=on
 RewriteCond %{ENV:HTTPS} !=on
@@ -15,7 +15,7 @@ RewriteRule .* https://%{SERVER_NAME}%{REQUEST_URI} [R=301,L]
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)/$ /$1 [L,R=301]
 
-SetEnvIf Request_URI ^/(shared|style)/ SHARELINK=yes
+SetEnvIf Request_URI ^/(shared|style|webHooks)/ SHARELINK=yes
 
 # Handle Front Controller...
 RewriteCond %{REQUEST_FILENAME} !-d
@@ -25,8 +25,9 @@ RewriteRule ^ index.php [L]
 AuthType Basic
 AuthName "Geheimer Bereich"
 #AuthUserFile /var/www/mwdocman/.htuser
-AuthUserFile /data/Multimedia/.htpasswd
+AuthUserFile /home/maxweller/www/apps/mwdocman/.htpasswd
 #Require valid-user
+Require env SHARELINK
 Require user mw
 
 # Die Magie!
