@@ -62,11 +62,11 @@ class ImportController extends Controller
     {
         $post = $request->input("doc");
         foreach($post as $docid => $content) {
-          $doc = Document::find($docid);
-          if ($content['title']) $doc->title = $content['title'];
-          if ($content['doc_date']) $doc->doc_date = $content['doc_date'];
-          if ($content['tags']) $doc->tags = $content['tags'];
-          $doc->save();
+            $doc = Document::find($docid);
+            if ($content['title']) $doc->title = $content['title'];
+            if ($content['doc_date']) $doc->doc_date = $content['doc_date'];
+            if ($content['tags']) $doc->tags = $content['tags'];
+            $doc->save();
         }
         return response()->json(["success"=>"true"]);
     }
