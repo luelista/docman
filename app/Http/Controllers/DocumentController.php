@@ -190,7 +190,7 @@ class DocumentController extends Controller
         $doc->doc_date = $request->input('doc_date');
         $doc->doc_mandant = $request->input('doc_mandant');
         $doc->tags = $request->input('tags');
-        
+
         $doc->save();
         return redirect()->action('DocumentController@show', [$doc->id]);
     }
