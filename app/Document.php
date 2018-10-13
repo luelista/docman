@@ -94,9 +94,9 @@ class Document extends Model
         $this->ocrtext = '';
 
         $this->debugLog("Splitting PDF", 1, $pagecount+1);
-        $cmd = "gs -dBATCH -dNOPAUSE -dQUIET -sDEVICE=tiff24nc -sOutputFile=$tmp -r144 $src";
-        shell_exec($cmd);
-        
+        $cmd = "gs -dNOPAUSE -dSAFER -sDEVICE=tiff24nc -sOutputFile=$tmp -r144 $src ";
+        exec($cmd);
+
         $this->pages()->delete();
         for($pag = 1; $pag <= $pagecount; $pag++) {   $this->debugLog("Handling page $pag/$pagecount", FALSE, $pag, $pagecount+1);
             $dst1 = escapeshellarg($this->getPagePreviewFilespec($pag));
@@ -121,7 +121,7 @@ class Document extends Model
         }
 
         $this->save();
-        shell_exec("rm " . escapeshellarg($this->getPath()) . '/' . '_tmp*.tiff');
+        exec("rm " . escapeshellarg($this->getPath()) . '/' . '_tmp*.tiff');
         $this->debugLog("Done", FALSE, $pagecount+1, $pagecount+1);
         //shell_exec("rm " . escapeshellarg($this->getPath()) . '/' . '_ocrtext*.txt');
     }
