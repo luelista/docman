@@ -5,11 +5,10 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Document extends Model
-{
+class Document extends Model {
     use SoftDeletes;
     protected $dates = ['doc_date', 'created_at', 'updated_at', 'deleted_at'];
-    
+
     public function pages() {
         return $this->hasMany('App\DocumentPage');
     }
@@ -114,7 +113,8 @@ class Document extends Model
                 $cmd = "tesseract -l deu ".sprintf($tmp, $pag)." ".escapeshellarg($this->getPath() . "/_ocrtext" . $pag);
                 shell_exec($cmd);
                 $ocrtext = file_get_contents($this->getPath() . "/_ocrtext" . $pag . ".txt") . "\n";
-            } else $ocrtext = NULL;
+            } else
+                $ocrtext = NULL;
             $this->debugLog("Saving");
             $pageInfo = new DocumentPage([ 'page_index' => $pag, 'page_number' => NULL, 'ocrtext' => $ocrtext ]);
             $this->pages()->save($pageInfo);
