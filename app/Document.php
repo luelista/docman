@@ -72,11 +72,11 @@ class Document extends Model
         return $this->getPath() . '/' . '_page' . $page . '.jpg';
     }
     public function debugLog($str, $clear=FALSE, $page = FALSE, $count = FALSE) {
-        file_put_contents($this->getPath() . '/_debug.log', date("H:i:s")." $str\n", $clear?0: FILE_APPEND);
+        echo date("H:i:s")." $str\n";
         if ($page !==FALSE) file_put_contents($this->getPath() . '/_progress.log', $page.'/'.$count);
     }
     public function getLog() {
-        return ["log"=>@file_get_contents($this->getPath() . '/_debug.log'), 
+        return ["log"=>"",
             "progress"=>@file_get_contents($this->getPath() . '/_progress.log'),
             "stdout"=>@file_get_contents($this->getPath() . '/_updatePreview_stdout.log')];
     }
