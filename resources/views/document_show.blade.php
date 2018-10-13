@@ -61,7 +61,7 @@ eine Seite
 
 <p class="hoverThumbs">
 @for($i=1; $i<= $doc->page_count; $i++)
-<img src="{{ action('DocumentController@thumbnail', [$doc->id, $doc->getToken(), $i]) }}" width=80 height=80 alt="{{$i}}">
+<img src="{{ action('DocumentController@thumbnail', [$doc->id, $doc->getToken(), $i]) }}" width=80 height=80 alt="{{$i}}" data-page-no="{{$i}}">
 @endfor
 </p>
 
@@ -89,6 +89,12 @@ getLog();
 </div>
 @endif
 
+<div class="toolbar">
+<button type="button" class="pull-left page-nav" data-dir="-1"><span class="glyphicon glyphicon-arrow-left"></button>
+<button type="button" class="pull-right page-nav" data-dir="1"><span class="glyphicon glyphicon-arrow-right"></button>
+<center>Seite <span id='selected_page'>1</span> von {{ $doc->page_count }}</center>
+</div>
+
 <img src="{{ action('DocumentController@preview', [$doc->id, $doc->getToken(), 1]) }}" id="mainImage" style="max-width: 100%">
 </div>
 </div>
@@ -104,14 +110,28 @@ getLog();
 <style>
 .hoverThumbs img { border: 1px solid white; }
 .hoverThumbs img.current { border-color: #f00; }
+.toolbar { color:white;z-index:1;background:rgba(3,3,3,0.8);opacity:0.1;height:2.6em; box-sizing:border-box; }
+#mainImage{margin-top:-2.6em}
+.toolbar button { background: black; border: 0; padding: 0.6em 2.6em;  }
+.toolbar center { padding: 0.6em; }
+.toolbar:hover{opacity:0.9;}
 </style>
 <script>
 var secure_token = '{{ csrf_token() }}';
+var selected_page = 1;
 iniDocumentShow()
-$(".hoverThumbs img").mouseover(function(e) {
+$(".hoverThumbs img").mouseover(function() {gotoPage(this)});
+function gotoPage(pag) {
+  if (typeof pag=="number") pag = document.querySelector("img[data-page-no=\""+pag+"\"]");
   $(".hoverThumbs .current").removeClass("current");
-  $(this).addClass("current");
-  $('#mainImage').attr('src',this.src.replace(/thumbnail/, 'preview'));
+  $(pag).addClass("current");
+  $('#mainImage').attr('src',pag.src.replace(/thumbnail/, 'preview'));
+  selected_page = pag.getAttribute("data-page-no");
+  $("#selected_page").text(selected_page);
+  history.replaceState('','',"#p="+selected_page);
+}
+$("button.page-nav").click(function() {
+  gotoPage(+selected_page + +this.getAttribute("data-dir"));
 });
 $("#updatePreview").click(function(){
     $(this).attr("disabled",true);
@@ -123,5 +143,8 @@ $("#updatePreview").click(function(){
         },200);
     }, "json");
 });
+if(location.hash.startsWith("#p=")) {
+    gotoPage(parseInt(location.hash.substr(3)));
+}
 </script>
 @endsection
