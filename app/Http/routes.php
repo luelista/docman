@@ -34,6 +34,7 @@ Route::get('/documents/{id}_{token}/log', 'ImportController@fetchLog');
 Route::post('/imports/update', 'ImportController@massUpdate');
 
 Route::post('/webHooks/handleMail', 'ImportController@handleMail');
+Route::put('/webHooks/handleFtp', 'ImportController@handleFtp');
 
 Route::get('/shared/{id}_{token}', 'DocumentController@showShareLink');
 Route::get('/shared/{id}_{token}/thumbnail/{page}', 'DocumentController@thumbnail');
