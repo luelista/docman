@@ -2,7 +2,7 @@
 <html lang="de">
   <head>
     <meta charset="utf-8">
-    <title>docman</title>
+    <title>@yield("head_title") docman</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="{{ url('style/css/bootstrap-yeti-theme.min.css') }}">
     <link rel="stylesheet" href="{{ url('style/style.css') }}">

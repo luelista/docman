@@ -1,5 +1,11 @@
 @extends("deflayout")
 
+@section("head_title")
+#{{$doc->id}}
+{{$doc->title}}
+
+@endsection
+
 @section("toolbar")
 <ul class="nav navbar-nav">
 @if ($doc->doc_mandant)
