@@ -79,6 +79,19 @@ class Document extends Model {
             "progress"=>@file_get_contents($this->getPath() . '/_progress.log'),
             "stdout"=>@file_get_contents($this->getPath() . '/_updatePreview_stdout.log')];
     }
+    private function check_call($cmd) {
+        //$out=shell_exec($cmd . " 2>&1");
+        //if ($out === NULL) throw new \Exception("external command failed ($cmd)");
+        //return $out;
+        $this->debugLog("\tcmd-line: $cmd");
+        exec($cmd . " 2>&1", $output, $exit_code);
+
+        $this->debugLog("\t\texit-code: $exit_code");
+        if ($exit_code !== 0) {
+            $this->debugLog("\t\toutput: $output");
+            throw new \Exception("external command failed");
+        }
+    }
     public function updatePreview() {
         $this->debugLog("updating preview...",true, 0, 0);
         $this->page_count = 0;
@@ -93,8 +106,8 @@ class Document extends Model {
         $this->ocrtext = '';
 
         $this->debugLog("Splitting PDF", 1, $pagecount+1);
-        $cmd = "gs -dNOPAUSE -dSAFER -sDEVICE=tiff24nc -sOutputFile=$tmp -r144 $src ";
-        exec($cmd);
+        $cmd = "gs -dBATCH -dNOPAUSE -dSAFER -sDEVICE=tiff24nc -sOutputFile=$tmp -r144 $src ";
+        $this->check_call($cmd);
 
         $this->pages()->delete();
         for($pag = 1; $pag <= $pagecount; $pag++) {   $this->debugLog("Handling page $pag/$pagecount", FALSE, $pag, $pagecount+1);
@@ -103,15 +116,15 @@ class Document extends Model {
 
             $tsize = 800;    $this->debugLog("Thumbnail $tsize px");
             $cmd = "convert ".sprintf($tmp, $pag)." -quality 70 -resize '{$tsize}x{$tsize}^' -trim -fuzz 70% +repage $dst1";
-            shell_exec($cmd);
+            $this->check_call($cmd);
 
             $tsize = 150;    $this->debugLog("Thumbnail $tsize px");
             $cmd = "convert ".sprintf($tmp, $pag)." -resize '{$tsize}x{$tsize}^' -crop '{$tsize}x{$tsize}+0+0' -trim -fuzz 70% $dst2";
-            shell_exec($cmd);
+            $this->check_call($cmd);
 
             if ($pag < env("OCR_PAGE_LIMIT")) {  $this->debugLog("OCR");
                 $cmd = "tesseract -l deu ".sprintf($tmp, $pag)." ".escapeshellarg($this->getPath() . "/_ocrtext" . $pag);
-                shell_exec($cmd);
+                $this->check_call($cmd);
                 $ocrtext = file_get_contents($this->getPath() . "/_ocrtext" . $pag . ".txt") . "\n";
             } else
                 $ocrtext = NULL;
@@ -150,13 +163,13 @@ class Document extends Model {
         $doc->save();
 
         $pdftk_cmd = env("PDFTK_BIN") . " " . $src . " cat " . $newExtr . " output " . escapeshellarg($doc->getPath() . "/" . $doc->import_filename);
-        shell_exec($pdftk_cmd);
+        $this->check_call($pdftk_cmd);
         $doc->updatePreview();
 
         if ($removeFromOrig) {
             $this->import_filename = str_replace(" ", ".", $newOrig) . "__" . $this->import_filename;
             $pdftk_cmd = env("PDFTK_BIN") . " " . $src . " cat " . $newOrig . " output " . escapeshellarg($this->getPath() . "/" . $this->import_filename);
-            shell_exec($pdftk_cmd);
+            $this->check_call($pdftk_cmd);
             $this->updatePreview();
             $this->save();
         }
@@ -170,7 +183,7 @@ class Document extends Model {
         $src = escapeshellarg($this->getPath() . '/' . $this->import_filename);
         $target = escapeshellarg($this->getPath() . '/pg_%d.pdf');
         $pdftk_cmd = env("PDFTK_BIN") . " " . $src . " burst output " . $target;
-        shell_exec($pdftk_cmd);
+        $this->check_call($pdftk_cmd);
 
         $docList = array();
         for($i = 1; $i <= $this->page_count; $i++) {
@@ -199,13 +212,12 @@ class Document extends Model {
             $pdftk_cmd = env("PDFTK_BIN") . " " . $src2 . " " . $src1 . " cat output " . $dst;
         else
             $pdftk_cmd = env("PDFTK_BIN") . " " . $src1 . " " . $src2 . " cat output " . $dst;
+        $this->check_call($pdftk_cmd);
 
-        shell_exec($pdftk_cmd);
         $this->save();
         $this->updatePreview();
 
         return [ $this ];
     }
-
 
 }
