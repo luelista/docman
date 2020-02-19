@@ -62,6 +62,36 @@ class ImportController extends Controller
     }
 
     /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function handleFtp(Request $request) {
+        if ($request->query("token") != $_ENV["WEBHOOK_TOKEN"]) abort(403, 'Invalid token');
+
+        $doc = new Document();
+        $doc->doc_date = null;
+        $doc->import_filename = date("Y-m-d-H-i-s").".pdf";
+        $doc->import_source = "ftp";
+        $doc->title = "";
+        $doc->description = "";
+        $doc->save();
+
+        file_put_contents($doc->getPath() . '/' . $doc->import_filename, file_get_contents('php://input'));
+        if ($_ENV['UPDATE_PREVIEW_IN_BACKGROUND']) {
+            $lockFile = $doc->getPath() . '/_updatePreview.pid';
+            $logfile = $doc->getPath() . '/_updatePreview_stdout.log';
+
+            shell_exec("php ".escapeshellarg(base_path() . '/artisan')." docman:updatepreview ".intval($doc->id)." > ".escapeshellarg($logfile)." 2>&1 & echo \$! > ".escapeshellarg($lockFile));
+        } else {
+            $doc->updatePreview();
+        }
+
+    }
+
+
+    /**
      * Updates properties of multiple documents at once. Used by import editor (/import)
      *
      * @param  \Illuminate\Http\Request  $request
