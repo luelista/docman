@@ -47,7 +47,16 @@ class ImportController extends Controller
 
         $file->move($doc->getPath(), $doc->import_filename);
 
-        $doc->updatePreview();
+        if ($_ENV['UPDATE_PREVIEW_IN_BACKGROUND']) {
+            $lockFile = $doc->getPath() . '/_updatePreview.pid';
+            $logfile = $doc->getPath() . '/_updatePreview_stdout.log';
+
+            shell_exec("php ".escapeshellarg(base_path() . '/artisan')." docman:updatepreview ".intval($doc->id)." > ".escapeshellarg($logfile)." 2>&1 & echo \$! > ".escapeshellarg($lockFile));
+            sleep(5);
+        } else {
+            $doc->updatePreview();
+        }
+
 
         #var_dump($request->input());
     }
