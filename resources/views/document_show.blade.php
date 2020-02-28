@@ -106,10 +106,6 @@ getLog();
 </div>
 @if ($editable)
 </form>
-<form action="" method="post" name="deletefrm">
-	{{ csrf_field() }}
-	<input type="hidden" name="_method" value="DELETE">
-</form>
 @else
 <script> $("input,textarea").attr("readonly","true"); $("a[href]").attr("href",null); </script>
 @endif

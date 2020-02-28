@@ -39,7 +39,8 @@ class UpdateTags extends Command
     public function handle()
     {
         DB::delete("TRUNCATE TABLE document_tags");
-        $docs = Document::all();
+        //$docs = Document::all();
+        $docs = DB::table('documents')->get();
         foreach($docs as $d) {
           $tagarr = explode(" ",$d->tags);
           foreach($tagarr as $tag) if ($tag != "")

@@ -18,33 +18,33 @@ class DocumentController extends Controller {
     public function index(Request $request) {
         if ($request->has("q")) {
             $query = explode(" ", $request->input("q"));
-            $where = ""; $para = array();
-            foreach($query as $q) {
-                if (substr($q,0,1)=="!") { $where .= " NOT "; $q=substr($q,1); }
-
-                if (preg_match('/^(?:m:(.*)|([A-Z]+))$/', $q, $m)) {
-                    $where .= " doc_mandant = ? AND "; $para[] = $m[1];
-                } else if (preg_match('/^d:([0-9]){4}$/', $q, $m)) {
-                    $q = intval($m[1]);
-                    $where .= " year(doc_date) = ? AND "; $para[] = $q;
-                } elseif (preg_match('/^d:([0-9]{4})-([0-9]{2})$/', $q)) {
-                    $where .= " year(doc_date) = ? AND  month(doc_date) = ? AND "; $para[] = $m[1];$para[] = $m[2];
-                } elseif (substr($q,0,4)=="tag:") {
-                    $q = "% ".substr($q,4)." %";
-                    $where .= " tags LIKE ? AND "; $para[] = $q;
-                } elseif (substr($q,0,6)=="title:") {
-                    $q = "%".substr($q,6)."%";
-                    $where .= " title LIKE ? AND "; $para[] = $q;
-                } else {
-                    $q = "%$q%";
-                    $where .= " (title LIKE ? OR description LIKE ? OR tags LIKE ? OR ocrtext LIKE ?) AND "; $para[] = $q;$para[] = $q;$para[] = $q;$para[] = $q;
-                }
-            }
-
-            $docs = Document::whereRaw("$where 1", $para)->orderBy('created_at', 'DESC')->get();
         } else {
-            $docs = Document::orderBy('created_at', 'DESC')->get();
+            $query = array();
         }
+        $where = ""; $para = array();
+        foreach($query as $q) {
+            if (substr($q,0,1)=="!") { $where .= " NOT "; $q=substr($q,1); }
+
+            if (preg_match('/^(?:m:(.*)|([A-Z]+))$/', $q, $m)) {
+                $where .= " doc_mandant = ? AND "; $para[] = $m[1];
+            } else if (preg_match('/^d:([0-9]){4}$/', $q, $m)) {
+                $q = intval($m[1]);
+                $where .= " year(doc_date) = ? AND "; $para[] = $q;
+            } elseif (preg_match('/^d:([0-9]{4})-([0-9]{2})$/', $q)) {
+                $where .= " year(doc_date) = ? AND  month(doc_date) = ? AND "; $para[] = $m[1];$para[] = $m[2];
+            } elseif (substr($q,0,4)=="tag:") {
+                $q = "% ".substr($q,4)." %";
+                $where .= " tags LIKE ? AND "; $para[] = $q;
+            } elseif (substr($q,0,6)=="title:") {
+                $q = "%".substr($q,6)."%";
+                $where .= " title LIKE ? AND "; $para[] = $q;
+            } else {
+                $q = "%$q%";
+                $where .= " (title LIKE ? OR description LIKE ? OR tags LIKE ? OR ocrtext LIKE ?) AND "; $para[] = $q;$para[] = $q;$para[] = $q;$para[] = $q;
+            }
+        }
+
+        $docs = Document::whereRaw("$where 1", $para)->orderBy('created_at', 'DESC')->get();
 
         $mandanten = DB::table('documents')->select(array('doc_mandant', DB::raw('count(doc_mandant) cc')))->groupBy('doc_mandant')->having('doc_mandant', '<>', '')->get();
 
