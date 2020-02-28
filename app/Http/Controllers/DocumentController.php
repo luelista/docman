@@ -199,7 +199,7 @@ class DocumentController extends Controller {
     }
 
     public function allTags() {
-        $tags = DB::select("select count(tag) cc,tag from document_tags group by tag order by cc desc");
+        $tags = DB::select("select count(tag) cc,tag as value from document_tags group by tag order by cc desc");
         return response()->json(["tags" => $tags]);
     }
 
