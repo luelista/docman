@@ -102,10 +102,10 @@
   }
   function bulkSet() {
     if (!confirm("Das überschreibt die Felder. Sicher?")) return;
-    $('.field-date').val($('#bulk-date').val());
-    $('.field-tags').val($('#bulk-tags').val());
-    $('.field-mandant').val($('#bulk-mandant').val());
-    $('.field-desc').val($('#bulk-desc').val());
+    if ($('#bulk-date').val() != "") $('.field-date').val($('#bulk-date').val());
+    if ($('#bulk-tags').val() != "") $('.field-tags').val($('#bulk-tags').val());
+    if ($('#bulk-mandant').val() != "") $('.field-mandant').val($('#bulk-mandant').val());
+    if ($('#bulk-desc').val() != "") $('.field-desc').val($('#bulk-desc').val());
   }
   </script>
 @endsection
