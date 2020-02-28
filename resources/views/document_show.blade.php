@@ -117,6 +117,7 @@ getLog();
 .toolbar button { background: black; border: 0; padding: 0.6em 2.6em;  }
 .toolbar center { padding: 0.6em; }
 .toolbar:hover{opacity:0.9;}
+.tagify.form-control {height:auto}
 </style>
 <script>
 var secure_token = '{{ csrf_token() }}';
@@ -148,5 +149,31 @@ $("#updatePreview").click(function(){
 if(location.hash.startsWith("#p=")) {
     gotoPage(parseInt(location.hash.substr(3)));
 }
+
+var tagInput = document.querySelector("input[name=tags]"),
+    tagTagify = new Tagify(tagInput, {
+        delimiters: ' ',
+        keepInvalidTags: true,
+        outputDelimiter: " ",
+    }).on('input', onInput);
+
+
+// on character(s) added/removed (user is typing/deleting)
+function onInput(e){
+    console.log("onInput: ", e.detail);
+    tagTagify.settings.whitelist.length = 0; // reset current whitelist
+    tagTagify.loading(true).dropdown.hide.call(tagTagify) // show the loader animation
+
+    // get new whitelist from a delayed mocked request (Promise)
+    fetch('/tags').then(response => response.json())
+    .then(function(result){
+            // https://stackoverflow.com/q/30640771/104380
+            // replace tagify "whitelist" array values with new values (result)
+            tagTagify.settings.whitelist.splice(0, result.tags.length, ...result.tags)
+            // render the suggestions dropdown. "newValue" is when "input" event is called while editing a tag
+            tagTagify.loading(false).dropdown.show.call(tagTagify, e.detail.value);
+        })
+}
+
 </script>
 @endsection

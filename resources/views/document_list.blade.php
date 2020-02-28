@@ -88,7 +88,7 @@ function loadtags(){
   $list.html("");
   $.get("/tags", function(r) {
     r.tags.forEach(function(d) {
-      $list.append("<a href='?q=tag:"+d.tag+"' class=list-group-item><span class='badge'>"+d.cc+"</span> " + d.tag + "</a></li>");
+      $list.append("<a href='?q=tag:"+d.value+"' class=list-group-item><span class='badge'>"+d.cc+"</span> " + d.value + "</a></li>");
     });
   });
 }

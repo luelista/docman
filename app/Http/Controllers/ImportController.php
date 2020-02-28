@@ -104,6 +104,7 @@ class ImportController extends Controller
             $doc = Document::find($docid);
             if ($content['title']) $doc->title = $content['title'];
             if ($content['doc_date']) $doc->doc_date = $content['doc_date'];
+            if ($content['doc_mandant']) $doc->doc_mandant = $content['doc_mandant'];
             if ($content['tags']) $doc->tags = $content['tags'];
             $doc->save();
         }
