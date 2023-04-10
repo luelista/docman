@@ -3,7 +3,7 @@
 @section("toolbar")
 <form action="{{ action('DocumentController@index') }}" method="get" class="navbar-form navbar-left">
 	
-	<input type="text" placeholder="Suche" name="q" value="{{ Input::get("q") }}" class="form-control" size=60>
+	<input type="text" placeholder="Suche" name="q" value="{{ Request::input("q") }}" class="form-control" size=60>
 </form>
 <ul class="nav navbar-nav navbar-right">
 	<li><a href="{{action('DocumentController@updateTags')}}" style="margin-right:.5rem;">Tags aktualisieren</a></li>

@@ -1,19 +1,19 @@
 
 
 RewriteEngine On
-RewriteBase /
+RewriteBase /docs/
 
-RewriteCond %{HTTPS} !=on
-RewriteCond %{ENV:HTTPS} !=on
-RewriteRule .* https://%{SERVER_NAME}%{REQUEST_URI} [R=301,L]
+#RewriteCond %{HTTPS} !=on
+#RewriteCond %{ENV:HTTPS} !=on
+#RewriteRule .* https://%{SERVER_NAME}%{REQUEST_URI} [R=301,L]
 
 <IfModule mod_negotiation.c>
   Options -MultiViews
 </IfModule>
 
 # Redirect Trailing Slashes If Not A Folder...
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)/$ /$1 [L,R=301]
+#RewriteCond %{REQUEST_FILENAME} !-d
+#RewriteRule ^(.*)/$ /$1 [L,R=301]
 
 SetEnvIf Request_URI ^/(shared|style|webHooks)/ SHARELINK=yes
 
@@ -22,13 +22,23 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^ index.php [L]
 
-AuthType Basic
-AuthName "Geheimer Bereich"
-#AuthUserFile /var/www/mwdocman/.htuser
-AuthUserFile /home/maxweller/www/apps/mwdocman/.htpasswd
+AuthType digest
+#AuthType mellon
+AuthName "Restricted area"
+AuthUserFile /var/www/virtual/luelista/.htpasswd
+#AuthUserFile /home/mira/www/apps/mwdocman/.htpasswd
 #Require valid-user
+<RequireAny>
 Require env SHARELINK
-Require user mw
+#Require user mw
+#Require valid-user
+Require user miraweller
+</RequireAny>
+#MellonEnable "auth"
+#MellonVariable "cookie"
+#MellonSecureCookie On
+#MellonCookiePath /
+
 
 # Die Magie!
 #Order Deny,Allow
