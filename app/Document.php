@@ -7,8 +7,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Document extends Model {
     use SoftDeletes;
-    protected $dates = ['doc_date', 'created_at', 'updated_at', 'deleted_at'];
-
+    protected $casts = [ 'doc_date'=>'datetime', 'created_at'=>'datetime', 'updated_at'=>'datetime', 'deleted_at'=>'datetime'];
     public function pages() {
         return $this->hasMany('App\DocumentPage');
     }

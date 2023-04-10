@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -38,5 +39,6 @@ Route::put('/webHooks/handleFtp', 'ImportController@handleFtp');
 
 Route::get('/shared/{id}_{token}', 'DocumentController@showShareLink');
 Route::get('/shared/{id}_{token}/thumbnail/{page}', 'DocumentController@thumbnail');
+Route::get('/shared/{id}_{token}/preview/{page}.jpg', 'DocumentController@preview');
 Route::get('/shared/{id}_{token}/preview/{page}', 'DocumentController@preview');
 
